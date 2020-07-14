@@ -1,6 +1,7 @@
 package com.ddylan.fortnite.command;
 
 import com.ddylan.fortnite.profile.Profile;
+import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandPermission;
 import dev.jorel.commandapi.arguments.Argument;
@@ -22,10 +23,21 @@ public class CommandImplementer {
         this.plugin = plugin;
     }
 
+    public void preinit() {
+        CommandAPI.unregister("msg", true);
+        CommandAPI.unregister("tell", true);
+        CommandAPI.unregister("whisper", true);
+        CommandAPI.unregister("me", true);
+    }
+
     public void init() {
+        //  Messaging
         registerMessageCommand();
         registerReplyCommand();
+
+        //  Homes
         registerHomeCommand();
+        registerSetHomeCommand();
     }
 
     private void registerMessageCommand() {
@@ -54,6 +66,7 @@ public class CommandImplementer {
                     //  do noises
                     sender.playSound(sender.getEyeLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 0.8f);
                     receiver.playSound(sender.getEyeLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 0.85f);
+                    return 1;
                 })
                 .register();
     }
@@ -75,8 +88,8 @@ public class CommandImplementer {
                     Player receiver = Bukkit.getPlayer(senderProfile.getLastMessaged());
 
                     if (receiver == null) {
-                        sender.sendMessage(ChatColor.RED + "That player is not online.");
-                        return;
+                        CommandAPI.fail(ChatColor.RED + "That player is not online.");
+                        return 0;
                     }
 
                     //  do the command
@@ -86,6 +99,7 @@ public class CommandImplementer {
                     //  do noises
                     sender.playSound(sender.getEyeLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 0.8f);
                     receiver.playSound(sender.getEyeLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 0.85f);
+                    return 1;
                 })
                 .register();
     }
@@ -98,6 +112,19 @@ public class CommandImplementer {
                     Profile senderProfile = Profile.getProfiles().get(player.getUniqueId().toString());
                     player.teleport(senderProfile.getHome());
                     player.sendMessage(ChatColor.GOLD + "Teleported to your home.");
+                    return 1;
+                })
+                .register();
+    }
+
+    private void registerSetHomeCommand() {
+        new CommandAPICommand("sethome")
+                .withPermission(CommandPermission.NONE)
+                .executesPlayer((Player player, Object[] objects) -> {
+                    Profile senderProfile = Profile.getProfiles().get(player.getUniqueId().toString());
+                    senderProfile.setHome(player.getLocation());
+                    player.sendMessage(ChatColor.GOLD + "Your home has been set.");
+                    return 1;
                 })
                 .register();
     }

@@ -23,6 +23,7 @@ public class Fortnite extends JavaPlugin {
         this.profileHandler = new ProfileHandler(this);
         this.commandImplementer = new CommandImplementer(this);
 
+        commandImplementer.preinit();
         commandImplementer.init();
 
         getServer().getPluginManager().registerEvents(new ProfileListener(), this);
@@ -34,7 +35,6 @@ public class Fortnite extends JavaPlugin {
     }
 
     public Location getSpawnLocation() {
-
         Location location = new Location(Bukkit.getWorld("world"), 0, 0, 0);
 
         for (int i = 55; i < 255; i++) {
@@ -42,7 +42,7 @@ public class Fortnite extends JavaPlugin {
             location.setY(i);
 
             if (location.getBlock().isEmpty() && location.clone().add(0, 1, 0).getBlock().isEmpty()) {
-                return location.clone().subtract(0, 1, 0);
+                return location.add(0, 0.5, 0);
             }
         }
 
