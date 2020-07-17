@@ -7,9 +7,15 @@ import java.io.File;
 
 public class ProfileHandler {
 
-    @Getter private final File mainDirectory;
+    private JavaPlugin plugin;
+
+    @Getter private File mainDirectory;
 
     public ProfileHandler(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public void init() {
         this.mainDirectory = new File(plugin.getDataFolder() + "/profiles/");
 
         if (!mainDirectory.exists()) {

@@ -8,8 +8,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
-public class ProfileListener implements Listener {
+public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onProfileLoad(PlayerJoinEvent event) {
@@ -32,10 +33,27 @@ public class ProfileListener implements Listener {
         }
 
         profile.setName(player.getName());
+        player.setDisplayName(profile.getDisplayColor() + player.getName());
+        player.performCommand("helpme");
     }
 
     @EventHandler
-    public void onProfileSave(PlayerQuitEvent event) {
+    public void onPlayerDeath(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        Profile profile = Profile.getProfiles().get(player.getUniqueId().toString());
+
+        if (profile.getHome() != Fortnite.getInstance().getSpawnLocation()) {
+            event.setRespawnLocation(profile.getHome());
+            return;
+        }
+
+        if (player.getBedSpawnLocation() == null) {
+            event.setRespawnLocation(Fortnite.getInstance().getSpawnLocation());
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         Profile profile = Profile.getProfiles().get(player.getUniqueId().toString());
 
