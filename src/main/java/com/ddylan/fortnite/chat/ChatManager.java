@@ -22,16 +22,16 @@ public class ChatManager implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Profile profile = Profile.getProfiles().get(event.getPlayer().getUniqueId().toString());
 
-        if (event.getMessage().equalsIgnoreCase("[item]")) {
+        if (event.getMessage().contains("[item]")) {
             event.setCancelled(true);
             if (event.getPlayer().getInventory().getItemInMainHand().getType() != Material.AIR) {
                 ItemStack itemStack = event.getPlayer().getInventory().getItemInMainHand();
                 String chatFormat;
 
                 if (profile.hasPrefix()) {
-                    chatFormat = ChatColor.DARK_GRAY + "[" + ChatColor.RESET + profile.getPrefix() + ChatColor.DARK_GRAY + "] " + event.getPlayer().getDisplayName() + ChatColor.RESET + ": ";
+                    chatFormat = ChatColor.DARK_GRAY + "[" + ChatColor.RESET + profile.getPrefix() + ChatColor.DARK_GRAY + "] " + event.getPlayer().getDisplayName() + ChatColor.RESET + ": " + event.getMessage();
                 } else {
-                    chatFormat = event.getPlayer().getDisplayName() + ChatColor.RESET + ": ";
+                    chatFormat = event.getPlayer().getDisplayName() + ChatColor.RESET + ": " + event.getMessage();
                 }
                 BaseComponent component = formatItemLink(chatFormat, itemStack);
                 for (Player player : Bukkit.getOnlinePlayers()) {
@@ -58,7 +58,7 @@ public class ChatManager implements Listener {
     private BaseComponent formatItemLink(String source, ItemStack itemStack) {
         String linkDisplayName = (itemStack.getItemMeta() != null && itemStack.getItemMeta().hasDisplayName() ? itemStack.getItemMeta().getDisplayName() : WordUtils.capitalizeFully(itemStack.getType().name().toLowerCase().replace("_", " ")));
         String linkFormat = ChatColor.GRAY + "[" + ChatColor.AQUA + linkDisplayName + ChatColor.GRAY + "]";
-        BaseComponent component = new TextComponent(source + linkFormat);
+        BaseComponent component = new TextComponent(source.replace("[item]", linkFormat));
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new BaseComponent[]{new TextComponent(CraftItemStack.asNMSCopy(itemStack).save(new NBTTagCompound()).toString())}));
 
         return component;
